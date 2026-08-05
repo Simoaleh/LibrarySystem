@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ mode }} Book{% endblock %}
+{% block content %}
+<h1>{{ mode }} Book</h1>
+<form method="post">
+  <label>Title
+    <input name="title" value="{{ book.title if book else '' }}" required>
+  </label>
+  <label>Author
+    <input name="author" value="{{ book.author if book else '' }}" required>
+  </label>
+  <label>Category
+    <input name="category" value="{{ book.category if book else '' }}">
+  </label>
+  <label>Description
+    <textarea name="description" rows="4">{{ book.description if book else '' }}</textarea>
+  </label>
+  <label>Copies
+    <input name="copies" type="number" min="1" value="{{ book.copies if book else 1 }}">
+  </label>
+  <button class="btn" type="submit">Save</button>
+  <a class="btn" href="{{ url_for('books') }}">Cancel</a>
+  <p class="muted">Keywords/tags are auto-generated from title + description using NLTK.</p>
+</form>
+{% endblock %}

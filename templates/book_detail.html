@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+<h1>{{ book.title }}</h1>
+<p><strong>Author:</strong> {{ book.author }} |
+   <strong>Category:</strong> {{ book.category }}</p>
+<p>{{ book.description }}</p>
+<p><strong>Copies:</strong> {{ book.copies }} |
+   <strong>Available:</strong> {{ book.available }}</p>
+<p><strong>Auto keywords (NLTK):</strong> {{ book.keywords }}</p>
+
+{% if book.available > 0 %}
+<form method="post" action="{{ url_for('borrow_book') }}">
+  <input type="hidden" name="book_id" value="{{ book.id }}">
+  <label>Borrower
+    <select name="borrower_id" required>
+      {% for b in borrowers %}
+      <option value="{{ b.id }}">{{ b.full_name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn" type="submit">Borrow (due in 14 days)</button>
+</form>
+{% else %}
+<p class="muted">No copies available to borrow.</p>
+{% endif %}
+
+<h2>Reviews</h2>
+<a class="btn" href="{{ url_for('add_review', book_id=book.id) }}">+ Add Review</a>
+{% for review in book.reviews %}
+<div class="card">
+  <p>"{{ review.text }}"</p>
+  <p>
+    <span class="badge {{ review.sentiment_label|lower }}">{{ review.sentiment_label }}</span>
+    Rating: {{ review.rating }}/5
+    <span class="muted">— {{ review.created_at.strftime('%Y-%m-%d') }}</span>
+  </p>
+</div>
+{% else %}
+<p class="muted">No reviews yet.</p>
+{% endfor %}
+{% endblock %}

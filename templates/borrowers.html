@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Borrowers{% endblock %}
+{% block content %}
+<h1>Borrower Management</h1>
+<a class="btn" href="{{ url_for('add_borrower') }}">+ Add Borrower</a>
+<table>
+  <thead>
+    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for borrower in borrowers %}
+    <tr>
+      <td>{{ borrower.full_name }}</td>
+      <td>{{ borrower.email }}</td>
+      <td>{{ borrower.phone }}</td>
+      <td>
+        <a class="btn small" href="{{ url_for('borrower_detail', borrower_id=borrower.id) }}">View</a>
+        <form method="post" action="{{ url_for('delete_borrower', borrower_id=borrower.id) }}" style="display:inline">
+          <button class="btn small danger" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="muted">Names are split into first/last via NLTK tokenization.</p>
+{% endblock %}

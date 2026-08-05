@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Review {{ book.title }}{% endblock %}
+{% block content %}
+<h1>Review {{ book.title }}</h1>
+<form method="post">
+  <label>Rating
+    <select name="rating">
+      <option value="5">5</option>
+      <option value="4">4</option>
+      <option value="3" selected>3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
+  </label>
+  <label>Review
+    <textarea name="text" rows="4" required placeholder="What did you think?"></textarea>
+  </label>
+  <button class="btn" type="submit">Submit (runs VADER sentiment analysis)</button>
+  <a class="btn" href="{{ url_for('book_detail', book_id=book.id) }}">Cancel</a>
+</form>
+{% endblock %}

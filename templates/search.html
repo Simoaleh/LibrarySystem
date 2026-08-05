@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<h1>Search Books</h1>
+<form method="get" action="{{ url_for('search') }}">
+  <label>Query
+    <input name="q" value="{{ q }}" placeholder="Try 'searching' or 'dune'..." required>
+  </label>
+  <button class="btn" type="submit">Search</button>
+  <p class="muted">Uses NLTK: tokenization, stopword removal, and Porter stemming so
+     "searching" matches "search".</p>
+</form>
+{% if q %}
+  <p>{{ results|length }} result(s) for "{{ q }}"</p>
+  {% for book, score in results %}
+  <div class="card">
+    <p><a href="{{ url_for('book_detail', book_id=book.id) }}">{{ book.title }}</a>
+       <span class="muted">(score {{ score }})</span></p>
+    <p class="muted">{{ book.author }} — {{ book.category }}</p>
+  </div>
+  {% else %}
+  <p class="muted">No matches found.</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}
