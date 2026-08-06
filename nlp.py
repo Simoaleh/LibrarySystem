@@ -14,6 +14,7 @@ try:
     _ = SentimentIntensityAnalyzer()       # needs vader_lexicon
 except LookupError:
     nltk.download("punkt")
+    nltk.download("punkt_tab")
     nltk.download("stopwords")
     nltk.download("vader_lexicon")
     STOPWORDS = set(stopwords.words("english"))

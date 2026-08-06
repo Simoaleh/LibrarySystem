@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Receipt #{{ record.id }}{% endblock %}
+{% block content %}
+<h1>Borrow Receipt</h1>
+<div class="card">
+  <pre>{{ text }}</pre>
+  <p class="muted">Parsed {{ token_count }} token(s) via NLTK.</p>
+</div>
+<a class="btn" href="{{ url_for('borrower_detail', borrower_id=record.borrower_id) }}">Back to Borrower</a>
+{% endblock %}

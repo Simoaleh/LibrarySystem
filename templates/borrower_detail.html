@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ borrower.full_name }}{% endblock %}
+{% block content %}
+<h1>{{ borrower.full_name }}</h1>
+<p><strong>Email:</strong> {{ borrower.email }} |
+   <strong>Phone:</strong> {{ borrower.phone }}</p>
+<p><strong>Total fine:</strong> ${{ "%.2f"|format(total_fine) }}</p>
+
+<h2>Borrow History</h2>
+<table>
+  <thead>
+    <tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Returned</th><th>Status</th><th>Fine</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr>
+      <td><a href="{{ url_for('book_detail', book_id=record.book.id) }}">{{ record.book.title }}</a></td>
+      <td>{{ record.borrow_date }}</td>
+      <td>{{ record.due_date }}</td>
+      <td>{{ record.return_date or '' }}</td>
+      <td>{% if record.is_returned %}<span class="badge neutral">Returned</span>
+          {% elif record.is_overdue %}<span class="badge negative">Overdue</span>
+          {% else %}<span class="badge positive">Active</span>{% endif %}</td>
+      <td>{{ "%.2f"|format(record.fine) }}</td>
+      <td>
+        {% if not record.is_returned %}
+        <form method="post" action="{{ url_for('return_book', record_id=record.id) }}" class="inline">
+          <button class="btn small" type="submit">Return</button>
+        </form>
+        {% endif %}
+        <a class="btn small" href="{{ url_for('receipt', record_id=record.id) }}">Receipt</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="muted">No borrowing history.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a class="btn" href="{{ url_for('borrowers') }}">Back to Borrowers</a>
+{% endblock %}

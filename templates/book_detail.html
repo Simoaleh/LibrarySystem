@@ -25,6 +25,22 @@
 <p class="muted">No copies available to borrow.</p>
 {% endif %}
 
+<h2>Current Loans</h2>
+{% for record in book.records %}
+  {% if not record.is_returned %}
+  <div class="card">
+    <p><strong>{{ record.borrower.full_name }}</strong> — borrowed {{ record.borrow_date }}, due {{ record.due_date }}
+       <span class="muted">({{ 'overdue' if record.is_overdue else 'active' }})</span></p>
+    <form method="post" action="{{ url_for('return_book', record_id=record.id) }}" class="inline">
+      <button class="btn small" type="submit">Return</button>
+    </form>
+    <a class="btn small" href="{{ url_for('receipt', record_id=record.id) }}">Receipt</a>
+  </div>
+  {% endif %}
+{% else %}
+<p class="muted">No active loans.</p>
+{% endfor %}
+
 <h2>Reviews</h2>
 <a class="btn" href="{{ url_for('add_review', book_id=book.id) }}">+ Add Review</a>
 {% for review in book.reviews %}

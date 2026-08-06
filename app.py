@@ -3,7 +3,7 @@ import json
 import os
 from datetime import date, timedelta
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for
 
 import nlp
 from models import DAYS_PER_LOAN, BorrowRecord, Borrower, Book, Review, db
@@ -12,13 +12,22 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "lms.db")
-app.config["SECRET_KEY"] = "lms-dev-secret"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "lms-dev-secret")
 db.init_app(app)
 
 
 @app.route("/")
 def index():
-    return redirect(url_for("books"))
+    records = BorrowRecord.query.all()
+    stats = {
+        "books": Book.query.count(),
+        "available": sum(b.available for b in Book.query.all()),
+        "borrowers": Borrower.query.count(),
+        "active": sum(1 for r in records if not r.is_returned),
+        "overdue": sum(1 for r in records if r.is_overdue),
+        "fines": sum(r.fine for r in records),
+    }
+    return render_template("index.html", stats=stats)
 
 
 # ---------------- Book management (CRUD) ----------------
@@ -43,6 +52,7 @@ def add_book():
         )
         db.session.add(book)
         db.session.commit()
+        flash(f"Book '{book.title}' added.")
         return redirect(url_for("books"))
     return render_template("book_form.html", book=None, mode="Add")
 
@@ -58,14 +68,17 @@ def edit_book(book_id):
         book.copies = int(request.form.get("copies", 1) or 1)
         book.keywords = ", ".join(nlp.keywords(f"{book.title} {book.description}"))
         db.session.commit()
+        flash(f"Book '{book.title}' updated.")
         return redirect(url_for("books"))
     return render_template("book_form.html", book=book, mode="Edit")
 
 
 @app.route("/books/<int:book_id>/delete", methods=["POST"])
 def delete_book(book_id):
-    db.session.delete(db.get_or_404(Book, book_id))
+    book = db.get_or_404(Book, book_id)
+    db.session.delete(book)
     db.session.commit()
+    flash(f"Book '{book.title}' deleted.")
     return redirect(url_for("books"))
 
 
@@ -112,6 +125,7 @@ def add_review(book_id):
                     {k: scores[k] for k in ("pos", "neg", "neu", "compound")}),
             ))
             db.session.commit()
+            flash("Review submitted.")
         return redirect(url_for("book_detail", book_id=book.id))
     return render_template("review_form.html", book=book)
 
@@ -136,8 +150,24 @@ def add_borrower():
             phone=request.form.get("phone", "").strip(),
         ))
         db.session.commit()
+        flash("Borrower added.")
         return redirect(url_for("borrowers"))
     return render_template("borrower_form.html", borrower=None, mode="Add")
+
+
+@app.route("/borrowers/<int:borrower_id>/edit", methods=["GET", "POST"])
+def edit_borrower(borrower_id):
+    borrower = db.get_or_404(Borrower, borrower_id)
+    if request.method == "POST":
+        parts = nlp.name_tokens(request.form.get("name", ""))  # NLTK tokenization
+        borrower.first_name = " ".join(parts[:-1]) if len(parts) > 1 else (parts[0] if parts else "Unknown")
+        borrower.last_name = parts[-1] if parts else "Borrower"
+        borrower.email = request.form.get("email", "").strip()
+        borrower.phone = request.form.get("phone", "").strip()
+        db.session.commit()
+        flash(f"Borrower '{borrower.full_name}' updated.")
+        return redirect(url_for("borrowers"))
+    return render_template("borrower_form.html", borrower=borrower, mode="Edit")
 
 
 @app.route("/borrowers/<int:borrower_id>/delete", methods=["POST"])
@@ -145,6 +175,7 @@ def delete_borrower(borrower_id):
     borrower = db.get_or_404(Borrower, borrower_id)
     db.session.delete(borrower)
     db.session.commit()
+    flash(f"Borrower '{borrower.full_name}' deleted.")
     return redirect(url_for("borrowers"))
 
 
@@ -169,6 +200,9 @@ def borrow_book():
             due_date=date.today() + timedelta(days=DAYS_PER_LOAN),  # +14 days
         ))
         db.session.commit()
+        flash(f"'{book.title}' borrowed by {borrower.full_name}.")
+    else:
+        flash("No copies available.", "error")
     return redirect(url_for("borrower_detail", borrower_id=borrower.id))
 
 
@@ -178,6 +212,7 @@ def return_book(record_id):
     if not record.is_returned:
         record.return_date = date.today()
         db.session.commit()
+        flash(f"'{record.book.title}' returned.")
     return redirect(url_for("borrower_detail", borrower_id=record.borrower_id))
 
 

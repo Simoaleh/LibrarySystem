@@ -84,7 +84,8 @@ a { color: var(--primary); }
 
 .btn:hover { background: var(--primary-dark); }
 
-.btn.small { padding: 4px 10px; font-size: 0.82rem; }
+.btn.small { padding: 4px 10px; font-size: 0.82rem; margin: 0 4px 4px 0; }
+.btn.small:last-child { margin-right: 0; }
 
 .btn.danger { background: var(--danger); }
 .btn.danger:hover { background: #b91c1c; }
@@ -115,10 +116,13 @@ th {
 }
 
 tbody tr:hover { background: #f9fafb; }
+tbody tr[data-href] { cursor: pointer; }
 tbody tr:last-child td { border-bottom: none; }
 
 /* Forms */
 form { margin-bottom: 20px; }
+
+.inline { display: inline; margin: 0; }
 
 label {
   display: block;

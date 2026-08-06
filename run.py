@@ -8,7 +8,7 @@ def nltk_ready():
         import nltk
         nltk.data.find("corpora/stopwords")
         nltk.data.find("sentiment/vader_lexicon")
-        nltk.data.find("tokenizers/punkt")
+        nltk.data.find("tokenizers/punkt_tab/english")
         return True
     except Exception:
         return False
@@ -20,7 +20,7 @@ def setup():
 
     print("[2/3] Downloading NLTK corpora...")
     if not nltk_ready():
-        code = "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('vader_lexicon')"
+        code = "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('stopwords'); nltk.download('vader_lexicon')"
         subprocess.run([sys.executable, "-c", code], check=True)
     else:
         print("    NLTK corpora already present — skipping.")

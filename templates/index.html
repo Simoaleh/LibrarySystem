@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="card">
+  <p><strong>Books:</strong> {{ stats.books }} | <strong>Copies available:</strong> {{ stats.available }}</p>
+  <p><strong>Borrowers:</strong> {{ stats.borrowers }}</p>
+  <p><strong>Active loans:</strong> {{ stats.active }} | <strong>Overdue:</strong> {{ stats.overdue }}</p>
+  <p><strong>Total outstanding fines:</strong> ${{ "%.2f"|format(stats.fines) }}</p>
+</div>
+<p><a class="btn" href="{{ url_for('books') }}">Browse Books</a>
+   <a class="btn" href="{{ url_for('borrowers') }}">Borrowers</a></p>
+{% endblock %}

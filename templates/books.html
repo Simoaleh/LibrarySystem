@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     {% for book in books %}
-    <tr>
+    <tr data-href="{{ url_for('book_detail', book_id=book.id) }}">
       <td>{{ book.title }}</td>
       <td>{{ book.author }}</td>
       <td>{{ book.category }}</td>
@@ -20,9 +20,9 @@
       <td>{{ book.available }}</td>
       <td class="muted">{{ book.keywords }}</td>
       <td>
-        <a class="btn small" href="{{ url_for('book_detail', book_id=book.id) }}">View</a>
         <a class="btn small" href="{{ url_for('edit_book', book_id=book.id) }}">Edit</a>
-        <form method="post" action="{{ url_for('delete_book', book_id=book.id) }}" style="display:inline">
+        <a class="btn small" href="{{ url_for('book_detail', book_id=book.id) }}">Borrow</a>
+        <form method="post" action="{{ url_for('delete_book', book_id=book.id) }}" class="inline">
           <button class="btn small danger" type="submit">Delete</button>
         </form>
       </td>
